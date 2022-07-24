@@ -4,29 +4,18 @@ const { celebrate, Segments, Joi } = require('celebrate');
 
 const PersonsController = require('../controllers/PersonsController');
 
-const {
-  verifyIfEmailAlreadyExists,
-} = require('../../middleware/persons.middleware');
+const personsMiddleware = require('../../middleware/persons.middleware');
+const postPersons = require('../../middleware/validations');
 
 const personsRoutes = Router();
 const personsController = new PersonsController();
 
 personsRoutes.post(
   '/',
-  celebrate({
-    [Segments.BODY]: {
-      name: Joi.string().required('Name is required'),
-      email: Joi.string().email().required('Email is required'),
-      whatsapp: Joi.string().required('Whatsapp is required'),
-      cep: Joi.string().required('CEP is required'),
-      password: Joi.string().min(6).required('Password is required'),
-    },
-  }),
-  verifyIfEmailAlreadyExists,
+  postPersons(),
+  personsMiddleware.verifyIfEmailAlreadyExists,
   personsController.createPersons
 );
-
-
 
 personsRoutes.get('/', personsController.getAllPersons);
 
